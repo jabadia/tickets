@@ -34,7 +34,7 @@
 				<form role="form">
 				<div class="form-group">		
 					<label for="amount">Cantidad:</label>
-					<input class="form-control euros" type="text" id="amount" name="amount" value='10'>
+					<input class="form-control euros" type="number" id="amount" name="amount" value='10'>
 					<button class="btn btn-primary" id="calculate-btn">Calcular</button>
 				</div>
 				</form>
@@ -54,7 +54,11 @@
 	<script>
 	$(function(){
 		
-		$("#amount").on('change', onAmountChange);
+		$("#amount")
+			.on('change', onAmountChange)
+			.on('click', function() { $(this).select();} );
+
+
 		$("#calculate-btn").on('click', onCalculateBtn);
 		calculateTickets(getAmount());
 	});
