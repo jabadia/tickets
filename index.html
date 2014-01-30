@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en" manifest="tickets.manifest">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tickets Restaurante</title>
+
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+	<style>
+	.overpay
+	{
+		color:red;
+	}
+	.total
+	{
+		font-weight: bold;
+	}
+	.euros
+	{
+		text-align: right;
+	}
+	h4
+	{
+		width: 100%;
+		text-align: center;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3 col-xs-12">
+				<form role="form">
+				<div class="form-group">		
+					<label for="amount">Cantidad:</label>
+					<input class="form-control euros" type="text" id="amount" name="amount" value='10'>
+					<button class="btn btn-primary" id="calculate-btn">Calcular</button>
+				</div>
+				</form>
+				<h4>Tickets para pagar <span id="amount-feedback"></span></h4>
+				<table id="tickets-table" class="table table-striped">
+					<thead>
+						<th>Cantidad</th>
+						<th class='euros'>Importe</th>						
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>	
+	<script>
+	$(function(){
+		
+		$("#amount").on('change', onAmountChange);
+		$("#calculate-btn").on('click', onCalculateBtn);
+		calculateTickets(getAmount());
+	});
+
+	function onAmountChange(evt)
+	{
+		console.log("changed", evt, evt.target.value);
+		calculateTickets(getAmount());
+	}
+
+	function onCalculateBtn(evt)
+	{
+		evt.preventDefault();
+		console.log("calculating");
+		calculateTickets(getAmount());
+	}
+
+	function generateCombinations(amount, faceValues)
+	{
+		function evaluateCombination(faceValues,combination)
+		{
+			var sum = 0;
+			for(var i=0; i<faceValues.length; i++)
+			{
+				sum += faceValues[i] * combination[i];
+			}
+			return sum;
+		}
+
+		function generateNext(currentCombination, lastCombination)
+		{
+			var nextCombination = currentCombination.slice(0);	// clone array
+			for( var i=currentCombination.length-1; i>=0; i--)
+			{
+				nextCombination[i] += 1;
+				if( nextCombination[i] > lastCombination[i] )
+				{
+					nextCombination[i]=0;
+				}
+				else
+				{
+					break;
+				}
+			}
+			return nextCombination;
+		}
+
+		var combinations = [];
+
+		var maxTickets = faceValues.map( function(faceValue) { return Math.ceil(amount/faceValue); });
+		var currentCombination = faceValues.map( function() { return 0});
+
+		while( !currentCombination.equals(maxTickets) )
+		{
+			var value = evaluateCombination(faceValues,currentCombination);
+			combinations.push({ value: value, tickets: currentCombination });
+			currentCombination = generateNext(currentCombination,maxTickets);
+		}
+		return combinations;
+	}
+
+	function calculateTickets(amount)
+	{
+		var faceValues = [6.00, 1.81];
+		var combinations = generateCombinations(amount, faceValues);
+		console.log(combinations);
+		combinations.sort( function(a,b) { return( a.value - b.value )});
+		console.log(combinations);
+		var selectedCombination = combinations.find( function(c) { return c.value >= amount; });
+
+		updateResultTable(amount,selectedCombination.tickets, faceValues);
+	}
+
+	function getAmount()
+	{
+		var str = $('#amount').val() || "";
+		str = str.replace(",",".");
+		return parseFloat(str) || 0;
+	}
+
+	function updateResultTable(amount, tickets, faceValues)
+	{
+		var tableBody = $('#tickets-table tbody');
+
+		$('#amount-feedback').html(amount.toFixed(2) + " €");
+
+		tableBody.empty();
+		var totalValue = 0;
+		for(var i=0; i<tickets.length; i++)
+		{
+			var ticketCount = tickets[i];
+			var faceValue = faceValues[i];
+
+			if( ticketCount == 0)
+				continue;
+
+			var tr = $("<tr>")
+				.append("<td>" + ticketCount + " ticket" + ((ticketCount==1)? "" : "s") + " de </td>")
+				.append("<td class='euros'>" + faceValue.toFixed(2) + " €</td>");
+			tableBody.append(tr);
+			totalValue += ticketCount * faceValue;
+		};
+
+		var totalTr = $("<tr class='total'>")
+				.append("<td>Total</td>")
+				.append("<td class='euros'>" + totalValue.toFixed(2) + " €</td>");
+		tableBody.append(totalTr);
+
+		var remainderTr = $("<tr>")
+				.append("<td>Sobra</td>")
+				.append("<td class='overpay euros'>" + (totalValue-amount).toFixed(2) + " €</td>");
+		tableBody.append(remainderTr);
+	}
+
+	Array.prototype.equals = function (array) {
+	    // if the other array is a falsy value, return
+	    if (!array)
+	        return false;
+
+	    // compare lengths - can save a lot of time
+	    if (this.length != array.length)
+	        return false;
+
+	    for (var i = 0, l=this.length; i < l; i++) {
+	        // Check if we have nested arrays
+	        if (this[i] instanceof Array && array[i] instanceof Array) {
+	            // recurse into the nested arrays
+	            if (!this[i].equals(array[i]))
+	                return false;
+	        }
+	        else if (this[i] != array[i]) {
+	            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+
+	Array.prototype.find = function(checkValue)
+	{
+		for(var i=0; i<this.length; i++)
+		{
+			var value = this[i];
+			if( checkValue(value) )
+				return value;
+		};
+		return null;
+	}
+	</script>
+
+</body>
+</html>
