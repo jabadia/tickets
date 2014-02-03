@@ -150,11 +150,13 @@
 		var totalValue = 0;
 		for(var i=0; i<tickets.length; i++)
 		{
-			var ticketCount = tickets[i];
+			var minusButton = "<button class='btn btn-sm btn-primary'>-</button> ";
+			var plusButton = " <button class='btn btn-sm btn-primary'>+</button>";
+			var ticketCount = tickets[i]; 
 			var faceValue = faceValues[i];
 
 			var tr = $("<tr>")
-				.append("<td>" + ticketCount + " ticket" + ((ticketCount==1)? "" : "s") + " de </td>")
+				.append("<td>" + minusButton + "<span class='count'>" + ticketCount + "</span>" + plusButton + "<span> ticket" + ((ticketCount==1)? "" : "s") + " de </span></td>")
 				.append("<td class='euros'>" + faceValue.toFixed(2) + " €</td>");
 			tableBody.append(tr);
 			totalValue += ticketCount * faceValue;
