@@ -153,9 +153,6 @@
 			var ticketCount = tickets[i];
 			var faceValue = faceValues[i];
 
-			if( ticketCount == 0)
-				continue;
-
 			var tr = $("<tr>")
 				.append("<td>" + ticketCount + " ticket" + ((ticketCount==1)? "" : "s") + " de </td>")
 				.append("<td class='euros'>" + faceValue.toFixed(2) + " €</td>");
