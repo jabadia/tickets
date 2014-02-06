@@ -1,6 +1,8 @@
 module.exports = function(grunt)
 {
 	grunt.loadNpmTasks('grunt-manifest');
+	grunt.loadNpmTasks('grunt-contrib-watch');
+
 	grunt.initConfig({
 		manifest: {
 			generate: {
@@ -28,6 +30,12 @@ module.exports = function(grunt)
 				],
 				dest: 'tickets.manifest'
 			}
+		},
+		watch: {
+			scripts: {
+				files: '*.html' ,
+				tasks: 'manifest'
+			} 
 		}
 	});
 
