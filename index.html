@@ -50,7 +50,7 @@
 			</div>
 		</div>
 	</div>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>	
 	<script>
 	$(function(){
@@ -150,13 +150,11 @@
 		var totalValue = 0;
 		for(var i=0; i<tickets.length; i++)
 		{
-			var minusButton = "<button class='btn btn-sm btn-primary'>-</button> ";
-			var plusButton = " <button class='btn btn-sm btn-primary'>+</button>";
 			var ticketCount = tickets[i]; 
 			var faceValue = faceValues[i];
 
 			var tr = $("<tr>")
-				.append("<td>" + minusButton + "<span class='count'>" + ticketCount + "</span>" + plusButton + "<span> ticket" + ((ticketCount==1)? "" : "s") + " de </span></td>")
+				.append("<td><span class='count'>" + ticketCount + "</span><span> ticket" + ((ticketCount==1)? "" : "s") + " de </span></td>")
 				.append("<td class='euros'>" + faceValue.toFixed(2) + " €</td>");
 			tableBody.append(tr);
 			totalValue += ticketCount * faceValue;

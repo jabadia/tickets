@@ -14,7 +14,10 @@ module.exports = function(grunt)
 						'//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css'
 					],
 					network: [],
-					fallback: [],
+					fallback: [
+						'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js //ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js',
+						'https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js //ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
+					],
 					verbose: true,
 					master: 'index.html',
 					timestamp: true,
