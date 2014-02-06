@@ -53,21 +53,35 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>	
 	<script>
+
+	var ticketLimit = [undefined, undefined];
+
 	$(function(){
 		
 		$("#amount")
+			.on('keypress', replaceCommaWithDot)
 			.on('change', onAmountChange)
-			.on('click', function() { $(this).select();} );
-
+			.on('click', function() { $(this).select();} )
+			.on('touchend', function() { $(this).select();} );
 
 		$("#calculate-btn").on('click', onCalculateBtn);
 		calculateTickets(getAmount());
 	});
 
+	function replaceCommaWithDot(evt)
+	{
+		if(evt.which == 44)
+		{
+			$(this).val( $(this).val() + '.');
+			evt.preventDefault();
+		}
+	}
+
 	function onAmountChange(evt)
 	{
 		console.log("changed", evt, evt.target.value);
 		calculateTickets(getAmount());
+		ticketLimit = [undefined, undefined];
 	}
 
 	function onCalculateBtn(evt)
@@ -77,16 +91,11 @@
 		calculateTickets(getAmount());
 	}
 
-	function generateCombinations(amount, faceValues)
+	function generateCombinations(amount, faceValues, ticketLimit)
 	{
 		function evaluateCombination(faceValues,combination)
 		{
-			var sum = 0;
-			for(var i=0; i<faceValues.length; i++)
-			{
-				sum += faceValues[i] * combination[i];
-			}
-			return sum;
+			return combination.reduce(function(sum,c,i){ return sum + faceValues[i] * c; },0);
 		}
 
 		function generateNext(currentCombination, lastCombination)
@@ -96,47 +105,42 @@
 			{
 				nextCombination[i] += 1;
 				if( nextCombination[i] > lastCombination[i] )
-				{
 					nextCombination[i]=0;
-				}
 				else
-				{
 					break;
-				}
 			}
 			return nextCombination;
 		}
 
 		var combinations = [];
-
-		var maxTickets = faceValues.map( function(faceValue) { return Math.ceil(amount/faceValue); });
+		var maxTickets = ticketLimit.map(function(limit,i){ return limit || Math.ceil(amount/faceValues[i])});
 		var currentCombination = faceValues.map( function() { return 0});
+		var value = evaluateCombination(faceValues,currentCombination);
+		combinations.push({ value: value, tickets: currentCombination });
 
 		while( !currentCombination.equals(maxTickets) )
 		{
-			var value = evaluateCombination(faceValues,currentCombination);
-			combinations.push({ value: value, tickets: currentCombination });
 			currentCombination = generateNext(currentCombination,maxTickets);
+			value = evaluateCombination(faceValues,currentCombination);
+			combinations.push({ value: value, tickets: currentCombination });
 		}
+
 		return combinations;
 	}
 
 	function calculateTickets(amount)
 	{
 		var faceValues = [6.00, 1.81];
-		var combinations = generateCombinations(amount, faceValues);
-		console.log(combinations);
+		var combinations = generateCombinations(amount, faceValues, ticketLimit);
 		combinations.sort( function(a,b) { return( a.value - b.value )});
-		console.log(combinations);
 		var selectedCombination = combinations.find( function(c) { return c.value >= amount; });
-
-		updateResultTable(amount,selectedCombination.tickets, faceValues);
+		console.assert(selectedCombination,"no selected combination");
+		updateResultTable(amount,selectedCombination? selectedCombination.tickets : [0,0], faceValues);
 	}
 
 	function getAmount()
 	{
 		var str = $('#amount').val() || "";
-		str = str.replace(",",".");
 		return parseFloat(str) || 0;
 	}
 
@@ -153,10 +157,29 @@
 			var ticketCount = tickets[i]; 
 			var faceValue = faceValues[i];
 
+            var minusButton = "<button class='btn btn-sm btn-primary minus'>-</button> ";
+
 			var tr = $("<tr>")
-				.append("<td><span class='count'>" + ticketCount + "</span><span> ticket" + ((ticketCount==1)? "" : "s") + " de </span></td>")
+                .append("<td>" + 
+                	minusButton + 
+                	"<span class='count'>" + ticketCount + "</span>" +
+                	"<span> ticket" + ((ticketCount==1)? "" : "s") + " de </span>" + 
+                	"</td>")
 				.append("<td class='euros'>" + faceValue.toFixed(2) + " €</td>");
 			tableBody.append(tr);
+
+			var changeticketLimit = function(i,newCount)
+			{
+				return function()
+				{
+					ticketLimit = [undefined,undefined];
+					ticketLimit[i] = Math.max(newCount,0);
+					calculateTickets(getAmount());
+				}
+			}
+
+			tr.find('.minus').on('click', changeticketLimit(i,ticketCount-1));
+
 			totalValue += ticketCount * faceValue;
 		};
 
