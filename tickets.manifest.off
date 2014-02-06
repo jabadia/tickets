@@ -1,0 +1,19 @@
+CACHE MANIFEST
+#v10
+CACHE:
+index.html
+http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js
+https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js
+//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js
+//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css
+//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css
+
+NETWORK:
+*
+
+FALLBACK:
+http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js //ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js
+https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js //ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js
+//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js //netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js
+//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/*.css //netdna.bootstrapcdn.com/bootstrap/3.0.3/css/*.css
+
